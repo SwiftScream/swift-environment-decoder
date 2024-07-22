@@ -1,0 +1,10 @@
+--exclude .build
+
+# rules
+#--disable redundantReturn
+--disable andOperator
+--disable wrapMultilineStatementBraces
+
+# format options
+--closingparen same-line
+--nospaceoperators ..<, ...
