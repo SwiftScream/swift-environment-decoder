@@ -327,14 +327,14 @@ struct EnvironmentDecoderTests {
         let env = [
             "STRING": "abcdef123786",
             "OPTIONS_A": "prettyPrinted,sortedKeys",
-            "OPTIONS_B": "prettyPrinted,sortedKeys",
+            "OPTIONS_B": "withoutEscapingSlashes,sortedKeys,invalidValue",
             "OPTIONS_C": "",
         ]
         let result = try EnvironmentDecoder().decode(A.self, from: env)
         #expect(result.string == "abcdef123786")
         #expect(result.optionsA == [.prettyPrinted, .sortedKeys])
-        #expect(jsonResult.optionsB == [.sortedKeys, .withoutEscapingSlashes])
-        #expect(jsonResult.optionsC == [])
+        #expect(result.optionsB == [.sortedKeys, .withoutEscapingSlashes])
+        #expect(result.optionsC == [])
     }
 
     @Test func unkeyedContainerTest() throws {
