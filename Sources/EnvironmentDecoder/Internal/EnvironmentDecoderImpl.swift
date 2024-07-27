@@ -1,3 +1,5 @@
+import Foundation
+
 class EnvironmentDecoderImpl {
     let environment: [String: String]
     var valueOverride: String? // used for SingleValueContainer decoding what must be a single string
@@ -41,9 +43,23 @@ extension EnvironmentDecoderImpl {
     }
 
     func unwrap<T: Decodable>(_ type: T.Type, for codingPathNode: CodingPathNode) throws -> T {
-        try with(path: codingPathNode) {
+        if type == URL.self {
+            return try unwrapURL(for: codingPathNode.path) as! T // swiftlint:disable:this force_cast
+        }
+
+        return try with(path: codingPathNode) {
             try type.init(from: self)
         }
+    }
+
+    func unwrapURL(for codingPath: [CodingKey]) throws -> URL {
+        let string = try getValue(for: codingPath)
+        guard let url = URL(string: string) else {
+            throw DecodingError.dataCorrupted(.init(
+                codingPath: codingPath,
+                debugDescription: "Invalid URL string."))
+        }
+        return url
     }
 
     func unwrap<T: Decodable>(singleValue: String, as type: T.Type) throws -> T {
