@@ -43,6 +43,9 @@ extension EnvironmentDecoderImpl {
     }
 
     func unwrap<T: Decodable>(_ type: T.Type, for codingPathNode: CodingPathNode) throws -> T {
+        if type == Decimal.self {
+            return try unwrapDecimal(for: codingPathNode.path) as! T // swiftlint:disable:this force_cast
+        }
         if type == URL.self {
             return try unwrapURL(for: codingPathNode.path) as! T // swiftlint:disable:this force_cast
         }
@@ -53,6 +56,9 @@ extension EnvironmentDecoderImpl {
     }
 
     func unwrap<T: Decodable>(singleValue: String, as type: T.Type) throws -> T {
+        if type == Decimal.self {
+            return try EnvironmentDecoderImpl.unwrapDecimal(from: singleValue, for: codingPath) as! T // swiftlint:disable:this force_cast
+        }
         if type == URL.self {
             return try EnvironmentDecoderImpl.unwrapURL(from: singleValue, for: codingPath) as! T // swiftlint:disable:this force_cast
         }
@@ -60,6 +66,20 @@ extension EnvironmentDecoderImpl {
         return try with(singleValue: singleValue) {
             try type.init(from: self)
         }
+    }
+
+    private func unwrapDecimal(for codingPath: [CodingKey]) throws -> Decimal {
+        let value = try getValue(for: codingPath)
+        return try EnvironmentDecoderImpl.unwrapDecimal(from: value, for: codingPath)
+    }
+
+    private static func unwrapDecimal(from value: String, for codingPath: [CodingKey]) throws -> Decimal {
+        guard let decimal = Decimal(string: value, locale: Locale(identifier: "")) else {
+            throw DecodingError.dataCorrupted(.init(
+                codingPath: codingPath,
+                debugDescription: "Invalid Decimal string."))
+        }
+        return decimal
     }
 
     private func unwrapURL(for codingPath: [CodingKey]) throws -> URL {
