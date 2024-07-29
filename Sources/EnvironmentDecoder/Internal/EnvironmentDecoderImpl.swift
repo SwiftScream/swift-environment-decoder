@@ -52,20 +52,28 @@ extension EnvironmentDecoderImpl {
         }
     }
 
-    func unwrapURL(for codingPath: [CodingKey]) throws -> URL {
-        let string = try getValue(for: codingPath)
-        guard let url = URL(string: string) else {
+    func unwrap<T: Decodable>(singleValue: String, as type: T.Type) throws -> T {
+        if type == URL.self {
+            return try EnvironmentDecoderImpl.unwrapURL(from: singleValue, for: codingPath) as! T // swiftlint:disable:this force_cast
+        }
+
+        return try with(singleValue: singleValue) {
+            try type.init(from: self)
+        }
+    }
+
+    private func unwrapURL(for codingPath: [CodingKey]) throws -> URL {
+        let value = try getValue(for: codingPath)
+        return try EnvironmentDecoderImpl.unwrapURL(from: value, for: codingPath)
+    }
+
+    private static func unwrapURL(from value: String, for codingPath: [CodingKey]) throws -> URL {
+        guard let url = URL(string: value) else {
             throw DecodingError.dataCorrupted(.init(
                 codingPath: codingPath,
                 debugDescription: "Invalid URL string."))
         }
         return url
-    }
-
-    func unwrap<T: Decodable>(singleValue: String, as type: T.Type) throws -> T {
-        try with(singleValue: singleValue) {
-            try type.init(from: self)
-        }
     }
 
     private func unwrapBool(for codingPath: [CodingKey]) throws -> Bool {

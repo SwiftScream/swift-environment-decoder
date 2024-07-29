@@ -5,6 +5,7 @@ struct EnvironmentDecoderCustomTypeTests {
     @Test func urlTest() throws {
         #expect(try decode("https://example.com", as: URL.self).absoluteString == "https://example.com")
         #expect(try decode("example.com", as: URL.self).absoluteString == "example.com")
+        #expect(try decode("a.example.com,b.example.com", as: [URL].self).map(\.absoluteString) == ["a.example.com", "b.example.com"])
         #expect(throws: Swift.DecodingError.self) {
             try decode("", as: URL.self)
         }
