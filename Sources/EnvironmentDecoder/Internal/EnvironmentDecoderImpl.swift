@@ -168,6 +168,12 @@ extension EnvironmentDecoderImpl: Decoder {
     }
 
     func container<Key>(keyedBy _: Key.Type) throws -> KeyedDecodingContainer<Key> where Key: CodingKey {
+        guard valueOverride == nil else {
+            throw DecodingError.typeMismatch(String.self, .init(
+                codingPath: codingPath,
+                debugDescription: "Value is not a keyed container."))
+        }
+
         let container = KeyedContainer<Key>(
             impl: self,
             codingPathNode: codingPathNode)
@@ -175,6 +181,12 @@ extension EnvironmentDecoderImpl: Decoder {
     }
 
     func unkeyedContainer() throws -> UnkeyedDecodingContainer {
+        guard valueOverride == nil else {
+            throw DecodingError.typeMismatch(String.self, .init(
+                codingPath: codingPath,
+                debugDescription: "Value is not an unkeyed container."))
+        }
+
         let value = try getValue()
         return UnkeyedContainer(
             impl: self,

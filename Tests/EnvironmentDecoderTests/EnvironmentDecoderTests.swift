@@ -385,6 +385,18 @@ struct EnvironmentDecoderTests {
         }
     }
 
+    @Test func invalidUnkeyedContainerTest() throws {
+        struct A: Decodable {
+            let key: String
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("we-cant,encode-a-container,here", as: [A].self)
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("we-cant,encode-a-container,here", as: [[String]].self)
+        }
+    }
+
     @Test func keyedContainerSuperDecoderTest() throws {
         class SuperA: Decodable {
             let int: Int
