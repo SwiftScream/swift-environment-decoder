@@ -6,6 +6,7 @@ struct EnvironmentDecoderTypeTests {
         #expect(try decode("true", as: Bool.self) == true)
         #expect(try decode("false", as: Bool.self) == false)
         #expect(try decode("false,true,false", as: [Bool].self) == [false, true, false])
+        #expect(try decode("", as: [Bool].self) == [])
         #expect(throws: Swift.DecodingError.self) {
             try decode("0", as: Bool.self)
         }
@@ -56,6 +57,7 @@ struct EnvironmentDecoderTypeTests {
         #expect(try decode("a,b,c,d,e,f", as: String.self) == "a,b,c,d,e,f")
         #expect(try decode(" abcdef123456", as: String.self) == " abcdef123456")
         #expect(try decode("a,b,,d,efg", as: [String].self) == ["a", "b", "", "d", "efg"])
+        #expect(try decode("", as: [String].self) == [])
         #expect(throws: Swift.DecodingError.self) {
             try decode(nil, as: Int.self)
         }
@@ -90,6 +92,7 @@ struct EnvironmentDecoderTypeTests {
         #expect(try decode("1.23e17802", as: Double.self) == Double.infinity)
         #expect(try decode("-1.23e17802", as: Double.self) == -Double.infinity)
         #expect(try decode("3,3.14,-3", as: [Double].self) == [3.0, 3.14, -3.0])
+        #expect(try decode("", as: [Double].self) == [])
         #expect(throws: Swift.DecodingError.self) {
             try decode(" 5.0", as: Double.self)
         }
@@ -145,6 +148,7 @@ struct EnvironmentDecoderTypeTests {
         #expect(try decode("1.23e17802", as: Float.self) == Float.infinity)
         #expect(try decode("-1.23e17802", as: Float.self) == -Float.infinity)
         #expect(try decode("3,3.14,-3", as: [Float].self) == [3.0, 3.14, -3.0])
+        #expect(try decode("", as: [Float].self) == [])
         #expect(throws: Swift.DecodingError.self) {
             try decode(" 5.0", as: Float.self)
         }
@@ -176,6 +180,7 @@ struct EnvironmentDecoderTypeTests {
         #expect(try decode("123456", as: Int.self) == 123_456)
         #expect(try decode("-123456", as: Int.self) == -123_456)
         #expect(try decode("1,23,456", as: [Int].self) == [1, 23, 456])
+        #expect(try decode("", as: [Int].self) == [])
         #expect(throws: Swift.DecodingError.self) {
             try decode("123.456", as: Int.self)
         }
@@ -210,6 +215,7 @@ struct EnvironmentDecoderTypeTests {
         #expect(try decode("27", as: Int8.self) == 27)
         #expect(try decode("-27", as: Int8.self) == -27)
         #expect(try decode("1,23,45", as: [Int8].self) == [1, 23, 45])
+        #expect(try decode("", as: [Int8].self) == [])
         #expect(throws: Swift.DecodingError.self) {
             try decode("27.5", as: Int8.self)
         }
@@ -244,6 +250,7 @@ struct EnvironmentDecoderTypeTests {
         #expect(try decode("1234", as: Int16.self) == 1234)
         #expect(try decode("-1234", as: Int16.self) == -1234)
         #expect(try decode("1,23,456", as: [Int16].self) == [1, 23, 456])
+        #expect(try decode("", as: [Int16].self) == [])
         #expect(throws: Swift.DecodingError.self) {
             try decode("1234.5", as: Int16.self)
         }
@@ -278,6 +285,7 @@ struct EnvironmentDecoderTypeTests {
         #expect(try decode("123456", as: Int32.self) == 123_456)
         #expect(try decode("-123456", as: Int32.self) == -123_456)
         #expect(try decode("1,23,456", as: [Int32].self) == [1, 23, 456])
+        #expect(try decode("", as: [Int32].self) == [])
         #expect(throws: Swift.DecodingError.self) {
             try decode("123456.78", as: Int32.self)
         }
@@ -312,6 +320,7 @@ struct EnvironmentDecoderTypeTests {
         #expect(try decode("123456", as: Int64.self) == 123_456)
         #expect(try decode("-123456", as: Int64.self) == -123_456)
         #expect(try decode("1,23,456", as: [Int64].self) == [1, 23, 456])
+        #expect(try decode("", as: [Int64].self) == [])
         #expect(throws: Swift.DecodingError.self) {
             try decode("123456.78", as: Int64.self)
         }
@@ -345,6 +354,7 @@ struct EnvironmentDecoderTypeTests {
         #expect(try decode("0", as: UInt.self) == 0)
         #expect(try decode("123456", as: UInt.self) == 123_456)
         #expect(try decode("1,23,456", as: [UInt].self) == [1, 23, 456])
+        #expect(try decode("", as: [UInt].self) == [])
         #expect(throws: Swift.DecodingError.self) {
             try decode("-123456", as: UInt.self)
         }
@@ -378,6 +388,7 @@ struct EnvironmentDecoderTypeTests {
         #expect(try decode("0", as: UInt8.self) == 0)
         #expect(try decode("27", as: UInt8.self) == 27)
         #expect(try decode("1,23,45", as: [UInt8].self) == [1, 23, 45])
+        #expect(try decode("", as: [UInt8].self) == [])
         #expect(throws: Swift.DecodingError.self) {
             try decode("-27", as: UInt8.self)
         }
@@ -411,6 +422,7 @@ struct EnvironmentDecoderTypeTests {
         #expect(try decode("0", as: UInt16.self) == 0)
         #expect(try decode("1234", as: UInt16.self) == 1234)
         #expect(try decode("1,23,456", as: [UInt16].self) == [1, 23, 456])
+        #expect(try decode("", as: [UInt16].self) == [])
         #expect(throws: Swift.DecodingError.self) {
             try decode("-1234", as: UInt16.self)
         }
@@ -444,6 +456,7 @@ struct EnvironmentDecoderTypeTests {
         #expect(try decode("0", as: UInt32.self) == 0)
         #expect(try decode("123456", as: UInt32.self) == 123_456)
         #expect(try decode("1,23,456", as: [UInt32].self) == [1, 23, 456])
+        #expect(try decode("", as: [UInt32].self) == [])
         #expect(throws: Swift.DecodingError.self) {
             try decode("-123456", as: UInt32.self)
         }
@@ -477,6 +490,7 @@ struct EnvironmentDecoderTypeTests {
         #expect(try decode("0", as: UInt64.self) == 0)
         #expect(try decode("123456", as: UInt64.self) == 123_456)
         #expect(try decode("1,23,456", as: [UInt64].self) == [1, 23, 456])
+        #expect(try decode("", as: [UInt64].self) == [])
         #expect(throws: Swift.DecodingError.self) {
             try decode("-123456", as: UInt64.self)
         }

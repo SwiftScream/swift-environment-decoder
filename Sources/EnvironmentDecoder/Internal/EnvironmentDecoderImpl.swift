@@ -438,7 +438,11 @@ extension EnvironmentDecoderImpl {
         init(impl: EnvironmentDecoderImpl, codingPathNode: CodingPathNode, string: String) {
             self.impl = impl
             self.codingPathNode = codingPathNode
-            values = string.components(separatedBy: ",")
+            values = if string.isEmpty {
+                []
+            } else {
+                string.components(separatedBy: ",")
+            }
             currentIndex = values.startIndex
         }
 
