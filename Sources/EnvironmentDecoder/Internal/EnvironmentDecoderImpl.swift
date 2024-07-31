@@ -125,7 +125,11 @@ extension EnvironmentDecoderImpl {
         from value: String,
         as type: T.Type,
         for codingPath: [CodingKey]) throws -> T {
-        guard let result = T(value) else {
+        guard let result = if type is any UnsignedInteger.Type && value.hasPrefix("0x") {
+            T(value.dropFirst(2), radix: 16)
+        } else {
+            T(value)
+        } else {
             throw DecodingError.typeMismatch(type, .init(
                 codingPath: codingPath,
                 debugDescription: "Failed to parse as \(type)."))

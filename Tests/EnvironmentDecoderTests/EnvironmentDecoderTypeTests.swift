@@ -353,6 +353,12 @@ struct EnvironmentDecoderTypeTests {
     @Test func uint() throws {
         #expect(try decode("0", as: UInt.self) == 0)
         #expect(try decode("123456", as: UInt.self) == 123_456)
+        #expect(try decode("0x00", as: UInt.self) == 0)
+        #expect(try decode("0x1", as: UInt.self) == 1)
+        #expect(try decode("0x01", as: UInt.self) == 1)
+        #expect(try decode("0x00000000000000001", as: UInt.self) == 1)
+        #expect(try decode("0xe000000000000000", as: UInt.self) == 16_140_901_064_495_857_664)
+        #expect(try decode("0xFFFFFFFFFFFFFFFF", as: UInt.self) == 18_446_744_073_709_551_615)
         #expect(try decode("1,23,456", as: [UInt].self) == [1, 23, 456])
         #expect(try decode("", as: [UInt].self) == [])
         #expect(throws: Swift.DecodingError.self) {
@@ -371,6 +377,18 @@ struct EnvironmentDecoderTypeTests {
             try decode("18446744073709551616", as: UInt.self) // overflow
         }
         #expect(throws: Swift.DecodingError.self) {
+            try decode("0x10000000000000000", as: UInt.self) // overflow
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("0x", as: UInt.self)
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("0xx", as: UInt.self)
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("0xhello", as: UInt.self)
+        }
+        #expect(throws: Swift.DecodingError.self) {
             try decode("helloworld", as: UInt.self)
         }
         #expect(throws: Swift.DecodingError.self) {
@@ -387,6 +405,12 @@ struct EnvironmentDecoderTypeTests {
     @Test func uint8() throws {
         #expect(try decode("0", as: UInt8.self) == 0)
         #expect(try decode("27", as: UInt8.self) == 27)
+        #expect(try decode("0x00", as: UInt8.self) == 0)
+        #expect(try decode("0x1", as: UInt8.self) == 1)
+        #expect(try decode("0x01", as: UInt8.self) == 1)
+        #expect(try decode("0x001", as: UInt8.self) == 1)
+        #expect(try decode("0xe0", as: UInt8.self) == 224)
+        #expect(try decode("0xFF", as: UInt8.self) == 255)
         #expect(try decode("1,23,45", as: [UInt8].self) == [1, 23, 45])
         #expect(try decode("", as: [UInt8].self) == [])
         #expect(throws: Swift.DecodingError.self) {
@@ -405,6 +429,18 @@ struct EnvironmentDecoderTypeTests {
             try decode("256", as: UInt8.self) // overflow
         }
         #expect(throws: Swift.DecodingError.self) {
+            try decode("0x100", as: UInt8.self) // overflow
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("0x", as: UInt8.self)
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("0xx", as: UInt8.self)
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("0xhello", as: UInt8.self)
+        }
+        #expect(throws: Swift.DecodingError.self) {
             try decode("helloworld", as: UInt8.self)
         }
         #expect(throws: Swift.DecodingError.self) {
@@ -421,6 +457,12 @@ struct EnvironmentDecoderTypeTests {
     @Test func uint16() throws {
         #expect(try decode("0", as: UInt16.self) == 0)
         #expect(try decode("1234", as: UInt16.self) == 1234)
+        #expect(try decode("0x00", as: UInt16.self) == 0)
+        #expect(try decode("0x1", as: UInt16.self) == 1)
+        #expect(try decode("0x01", as: UInt16.self) == 1)
+        #expect(try decode("0x00001", as: UInt16.self) == 1)
+        #expect(try decode("0xe000", as: UInt16.self) == 57344)
+        #expect(try decode("0xFFFF", as: UInt16.self) == 65535)
         #expect(try decode("1,23,456", as: [UInt16].self) == [1, 23, 456])
         #expect(try decode("", as: [UInt16].self) == [])
         #expect(throws: Swift.DecodingError.self) {
@@ -439,6 +481,18 @@ struct EnvironmentDecoderTypeTests {
             try decode("65536", as: UInt16.self) // overflow
         }
         #expect(throws: Swift.DecodingError.self) {
+            try decode("0x10000", as: UInt16.self) // overflow
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("0x", as: UInt16.self)
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("0xx", as: UInt16.self)
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("0xhello", as: UInt16.self)
+        }
+        #expect(throws: Swift.DecodingError.self) {
             try decode("helloworld", as: UInt16.self)
         }
         #expect(throws: Swift.DecodingError.self) {
@@ -455,6 +509,12 @@ struct EnvironmentDecoderTypeTests {
     @Test func uint32() throws {
         #expect(try decode("0", as: UInt32.self) == 0)
         #expect(try decode("123456", as: UInt32.self) == 123_456)
+        #expect(try decode("0x00", as: UInt32.self) == 0)
+        #expect(try decode("0x1", as: UInt32.self) == 1)
+        #expect(try decode("0x01", as: UInt32.self) == 1)
+        #expect(try decode("0x000000001", as: UInt32.self) == 1)
+        #expect(try decode("0xe0000000", as: UInt32.self) == 3_758_096_384)
+        #expect(try decode("0xFFFFFFFF", as: UInt32.self) == 4_294_967_295)
         #expect(try decode("1,23,456", as: [UInt32].self) == [1, 23, 456])
         #expect(try decode("", as: [UInt32].self) == [])
         #expect(throws: Swift.DecodingError.self) {
@@ -473,6 +533,18 @@ struct EnvironmentDecoderTypeTests {
             try decode("4294967296", as: UInt32.self) // overflow
         }
         #expect(throws: Swift.DecodingError.self) {
+            try decode("0x100000000", as: UInt32.self) // overflow
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("0x", as: UInt32.self)
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("0xx", as: UInt32.self)
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("0xhello", as: UInt32.self)
+        }
+        #expect(throws: Swift.DecodingError.self) {
             try decode("helloworld", as: UInt32.self)
         }
         #expect(throws: Swift.DecodingError.self) {
@@ -489,6 +561,12 @@ struct EnvironmentDecoderTypeTests {
     @Test func uint64() throws {
         #expect(try decode("0", as: UInt64.self) == 0)
         #expect(try decode("123456", as: UInt64.self) == 123_456)
+        #expect(try decode("0x00", as: UInt64.self) == 0)
+        #expect(try decode("0x1", as: UInt64.self) == 1)
+        #expect(try decode("0x01", as: UInt64.self) == 1)
+        #expect(try decode("0x00000000000000001", as: UInt64.self) == 1)
+        #expect(try decode("0xe000000000000000", as: UInt64.self) == 16_140_901_064_495_857_664)
+        #expect(try decode("0xFFFFFFFFFFFFFFFF", as: UInt64.self) == 18_446_744_073_709_551_615)
         #expect(try decode("1,23,456", as: [UInt64].self) == [1, 23, 456])
         #expect(try decode("", as: [UInt64].self) == [])
         #expect(throws: Swift.DecodingError.self) {
@@ -505,6 +583,18 @@ struct EnvironmentDecoderTypeTests {
         }
         #expect(throws: Swift.DecodingError.self) {
             try decode("18446744073709551616", as: UInt64.self) // overflow
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("0x10000000000000000", as: UInt64.self) // overflow
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("0x", as: UInt64.self)
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("0xx", as: UInt64.self)
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("0xhello", as: UInt64.self)
         }
         #expect(throws: Swift.DecodingError.self) {
             try decode("helloworld", as: UInt64.self)
