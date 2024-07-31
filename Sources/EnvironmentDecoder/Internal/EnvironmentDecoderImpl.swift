@@ -2,14 +2,18 @@ import Foundation
 
 class EnvironmentDecoderImpl {
     let environment: [String: String]
+    let dataDecodingStrategy: EnvironmentDecoder.DataDecodingStrategy
     var valueOverride: String? // used for SingleValueContainer decoding what must be a single string
     var userInfo: [CodingUserInfoKey: Any] = [:]
 
     var codingPathNode: CodingPathNode
 
-    init(environment: [String: String], codingPathNode: CodingPathNode) {
+    init(environment: [String: String],
+         codingPathNode: CodingPathNode,
+         dataDecodingStrategy: EnvironmentDecoder.DataDecodingStrategy) {
         self.codingPathNode = codingPathNode
         self.environment = environment
+        self.dataDecodingStrategy = dataDecodingStrategy
     }
 }
 
@@ -43,6 +47,9 @@ extension EnvironmentDecoderImpl {
     }
 
     func unwrap<T: Decodable>(_ type: T.Type, for codingPathNode: CodingPathNode) throws -> T {
+        if type == Data.self {
+            return try unwrapData(for: codingPathNode) as! T // swiftlint:disable:this force_cast
+        }
         if type == Decimal.self {
             return try unwrapDecimal(for: codingPathNode.path) as! T // swiftlint:disable:this force_cast
         }
@@ -56,6 +63,9 @@ extension EnvironmentDecoderImpl {
     }
 
     func unwrap<T: Decodable>(singleValue: String, as type: T.Type) throws -> T {
+        if type == Data.self {
+            return try EnvironmentDecoderImpl.unwrapData(fromBase64: singleValue, for: codingPath) as! T // swiftlint:disable:this force_cast
+        }
         if type == Decimal.self {
             return try EnvironmentDecoderImpl.unwrapDecimal(from: singleValue, for: codingPath) as! T // swiftlint:disable:this force_cast
         }
@@ -66,6 +76,27 @@ extension EnvironmentDecoderImpl {
         return try with(singleValue: singleValue) {
             try type.init(from: self)
         }
+    }
+
+    private func unwrapData(for codingPathNode: CodingPathNode) throws -> Data {
+        switch dataDecodingStrategy {
+        case .deferredToData:
+            return try with(path: codingPathNode) {
+                try Data(from: self)
+            }
+        case .base64:
+            let value = try getValue(for: codingPathNode.path)
+            return try EnvironmentDecoderImpl.unwrapData(fromBase64: value, for: codingPath)
+        }
+    }
+
+    private static func unwrapData(fromBase64 string: String, for codingPath: [CodingKey]) throws -> Data {
+        guard let data = Data(base64Encoded: string) else {
+            throw DecodingError.dataCorrupted(.init(
+                codingPath: codingPath,
+                debugDescription: "Invalid Base64 string"))
+        }
+        return data
     }
 
     private func unwrapDecimal(for codingPath: [CodingKey]) throws -> Decimal {
@@ -415,7 +446,9 @@ extension EnvironmentDecoderImpl {
         }
 
         private func decoderForKey(_ key: some CodingKey) -> EnvironmentDecoderImpl {
-            EnvironmentDecoderImpl(environment: impl.environment, codingPathNode: codingPathNode.appending(key))
+            EnvironmentDecoderImpl(environment: impl.environment,
+                                   codingPathNode: codingPathNode.appending(key),
+                                   dataDecodingStrategy: impl.dataDecodingStrategy)
         }
 
         private func environmentVariablePrefix() -> String {
