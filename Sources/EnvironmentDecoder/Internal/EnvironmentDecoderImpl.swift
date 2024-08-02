@@ -3,6 +3,7 @@ import Foundation
 class EnvironmentDecoderImpl {
     let environment: [String: String]
     let dataDecodingStrategy: EnvironmentDecoder.DataDecodingStrategy
+    let dateDecodingStrategy: EnvironmentDecoder.DateDecodingStrategy
     var valueOverride: String? // used for SingleValueContainer decoding what must be a single string
     var userInfo: [CodingUserInfoKey: Any] = [:]
 
@@ -10,10 +11,12 @@ class EnvironmentDecoderImpl {
 
     init(environment: [String: String],
          codingPathNode: CodingPathNode,
-         dataDecodingStrategy: EnvironmentDecoder.DataDecodingStrategy) {
+         dataDecodingStrategy: EnvironmentDecoder.DataDecodingStrategy,
+         dateDecodingStrategy: EnvironmentDecoder.DateDecodingStrategy) {
         self.codingPathNode = codingPathNode
         self.environment = environment
         self.dataDecodingStrategy = dataDecodingStrategy
+        self.dateDecodingStrategy = dateDecodingStrategy
     }
 }
 
@@ -50,6 +53,9 @@ extension EnvironmentDecoderImpl {
         if type == Data.self {
             return try unwrapData(for: codingPathNode) as! T // swiftlint:disable:this force_cast
         }
+        if type == Date.self {
+            return try unwrapDate(for: codingPathNode.path) as! T // swiftlint:disable:this force_cast
+        }
         if type == Decimal.self {
             return try unwrapDecimal(for: codingPathNode.path) as! T // swiftlint:disable:this force_cast
         }
@@ -65,6 +71,9 @@ extension EnvironmentDecoderImpl {
     func unwrap<T: Decodable>(singleValue: String, as type: T.Type) throws -> T {
         if type == Data.self {
             return try EnvironmentDecoderImpl.unwrapData(fromBase64: singleValue, for: codingPath) as! T // swiftlint:disable:this force_cast
+        }
+        if type == Date.self {
+            return try EnvironmentDecoderImpl.unwrapDate(from: singleValue, for: codingPath, withStrategy: dateDecodingStrategy) as! T // swiftlint:disable:this force_cast
         }
         if type == Decimal.self {
             return try EnvironmentDecoderImpl.unwrapDecimal(from: singleValue, for: codingPath) as! T // swiftlint:disable:this force_cast
@@ -97,6 +106,29 @@ extension EnvironmentDecoderImpl {
                 debugDescription: "Invalid Base64 string"))
         }
         return data
+    }
+
+    private func unwrapDate(for codingPath: [CodingKey]) throws -> Date {
+        let value = try getValue(for: codingPath)
+        return try EnvironmentDecoderImpl.unwrapDate(from: value, for: codingPath, withStrategy: dateDecodingStrategy)
+    }
+
+    private static func unwrapDate(from value: String, for codingPath: [CodingKey], withStrategy strategy: EnvironmentDecoder.DateDecodingStrategy) throws -> Date {
+        switch strategy {
+        case .secondsSince1970:
+            let double = try unwrapDouble(from: value, for: codingPath)
+            return Date(timeIntervalSince1970: double)
+        case .millisecondsSince1970:
+            let double = try unwrapDouble(from: value, for: codingPath)
+            return Date(timeIntervalSince1970: double / 1000.0)
+        case .iso8601:
+            guard let date = ISO8601DateFormatter().date(from: value) else {
+                throw DecodingError.dataCorrupted(.init(
+                    codingPath: codingPath,
+                    debugDescription: "Invalid ISO8601 string."))
+            }
+            return date
+        }
     }
 
     private func unwrapDecimal(for codingPath: [CodingKey]) throws -> Decimal {
@@ -448,7 +480,8 @@ extension EnvironmentDecoderImpl {
         private func decoderForKey(_ key: some CodingKey) -> EnvironmentDecoderImpl {
             EnvironmentDecoderImpl(environment: impl.environment,
                                    codingPathNode: codingPathNode.appending(key),
-                                   dataDecodingStrategy: impl.dataDecodingStrategy)
+                                   dataDecodingStrategy: impl.dataDecodingStrategy,
+                                   dateDecodingStrategy: impl.dateDecodingStrategy)
         }
 
         private func environmentVariablePrefix() -> String {

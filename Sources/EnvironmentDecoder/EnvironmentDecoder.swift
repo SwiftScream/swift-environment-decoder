@@ -11,14 +11,29 @@ public final class EnvironmentDecoder {
         case base64
     }
 
+    /// The strategy to use for decoding `Date` values.
+    public enum DateDecodingStrategy: Sendable {
+        /// Decode the `Date` as a UNIX timestamp.
+        case secondsSince1970
+
+        /// Decode the `Date` as UNIX millisecond timestamp.
+        case millisecondsSince1970
+
+        /// Decode the `Date` as an ISO-8601-formatted string (in RFC 3339 format). This is the default strategy
+        case iso8601
+    }
+
     private let dataDecodingStrategy: DataDecodingStrategy
+    private let dateDecodingStrategy: DateDecodingStrategy
 
     /// Initializes `self` with default configuration.
     /// - Parameter dataDecodingStrategy: the strategy to use for decoding Data.
     ///
     /// - Note: dataDecodingStrategy is ignored for Data in an unkeyed container - base64 is always used.
-    public init(dataDecodingStrategy: DataDecodingStrategy = .base64) {
+    public init(dataDecodingStrategy: DataDecodingStrategy = .base64,
+                dateDecodingStrategy: DateDecodingStrategy = .iso8601) {
         self.dataDecodingStrategy = dataDecodingStrategy
+        self.dateDecodingStrategy = dateDecodingStrategy
     }
 
     /// Decodes a top-level value of the given type from the given environment representation.
@@ -31,7 +46,8 @@ public final class EnvironmentDecoder {
     public func decode<T: Decodable>(_ type: T.Type, from environment: [String: String] = ProcessInfo.processInfo.environment) throws -> T {
         let decoder = EnvironmentDecoderImpl(environment: environment,
                                              codingPathNode: .root,
-                                             dataDecodingStrategy: dataDecodingStrategy)
+                                             dataDecodingStrategy: dataDecodingStrategy,
+                                             dateDecodingStrategy: dateDecodingStrategy)
         return try type.init(from: decoder)
     }
 }

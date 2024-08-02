@@ -42,6 +42,68 @@ struct EnvironmentDecoderCustomTypeTests {
         }
     }
 
+    @Test func unixTimestampDateTest() throws {
+        typealias T = Date
+        let decoder = EnvironmentDecoder(dateDecodingStrategy: .secondsSince1970)
+        #expect(try decode("0", as: T.self, with: decoder) == Date(timeIntervalSince1970: 0))
+        #expect(try decode("1722582300", as: T.self, with: decoder) == Date(timeIntervalSince1970: 1_722_582_300))
+        #expect(try decode("0,1722582300,1732582300", as: [T].self, with: decoder)
+            == [Date(timeIntervalSince1970: 0), Date(timeIntervalSince1970: 1_722_582_300), Date(timeIntervalSince1970: 1_732_582_300)])
+        #expect(throws: Swift.DecodingError.self) {
+            try decode(nil, as: T.self, with: decoder)
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("", as: T.self, with: decoder)
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode(" 0", as: T.self, with: decoder)
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("0 ", as: T.self, with: decoder)
+        }
+    }
+
+    @Test func unixMillisecondTimestampDateTest() throws {
+        typealias T = Date
+        let decoder = EnvironmentDecoder(dateDecodingStrategy: .millisecondsSince1970)
+        #expect(try decode("0", as: T.self, with: decoder) == Date(timeIntervalSince1970: 0))
+        #expect(try decode("1722582300000", as: T.self, with: decoder) == Date(timeIntervalSince1970: 1_722_582_300))
+        #expect(try decode("0,1722582300000,1732582300000", as: [T].self, with: decoder)
+            == [Date(timeIntervalSince1970: 0), Date(timeIntervalSince1970: 1_722_582_300), Date(timeIntervalSince1970: 1_732_582_300)])
+        #expect(throws: Swift.DecodingError.self) {
+            try decode(nil, as: T.self, with: decoder)
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("", as: T.self, with: decoder)
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode(" 0", as: T.self, with: decoder)
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("0 ", as: T.self, with: decoder)
+        }
+    }
+
+    @Test func isoDateTest() throws {
+        typealias T = Date
+        let decoder = EnvironmentDecoder(dateDecodingStrategy: .iso8601)
+        #expect(try decode("1970-01-01T00:00:00Z", as: T.self, with: decoder) == Date(timeIntervalSince1970: 0))
+        #expect(try decode("1970-01-01T00:00:00+00:00", as: T.self, with: decoder) == Date(timeIntervalSince1970: 0))
+        #expect(try decode("1970-01-01T10:00:00+10:00", as: T.self, with: decoder) == Date(timeIntervalSince1970: 0))
+        #expect(try decode("2024-08-02T17:05:00+10:00", as: T.self, with: decoder) == Date(timeIntervalSince1970: 1_722_582_300))
+        #expect(try decode("1970-01-01T00:00:00Z,2024-08-02T17:05:00+10:00,2024-11-26T11:51:40+11:00", as: [T].self, with: decoder)
+            == [Date(timeIntervalSince1970: 0), Date(timeIntervalSince1970: 1_722_582_300), Date(timeIntervalSince1970: 1_732_582_300)])
+        #expect(throws: Swift.DecodingError.self) {
+            try decode(nil, as: T.self, with: decoder)
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("", as: T.self, with: decoder)
+        }
+        #expect(throws: Swift.DecodingError.self) {
+            try decode("1722582300000", as: T.self, with: decoder)
+        }
+    }
+
     @Test func decimalTest() throws {
         let formatter = Decimal.FormatStyle(locale: .init(identifier: ""))
             .precision(.integerAndFractionLength(integerLimits: 1...10, fractionLimits: 0...10))
