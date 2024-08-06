@@ -6,12 +6,11 @@ on:
   pull_request:
     branches: [ "master" ]
 
-env:
-  DEVELOPER_DIR: /Applications/Xcode_16.0.app/Contents/Developer
-
 jobs:
   build:
     runs-on: macos-latest
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_16.0.app/Contents/Developer
     steps:
     - uses: actions/checkout@v4
       with:
@@ -29,3 +28,13 @@ jobs:
       with:
         fail_ci_if_error: true
         verbose: true
+  build-swift-5-10:
+    runs-on: macos-14
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Check Swift version
+      run: swift --version
+    - name: Build
+      run: swift build
