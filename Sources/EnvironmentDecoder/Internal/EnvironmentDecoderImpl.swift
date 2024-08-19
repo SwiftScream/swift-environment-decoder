@@ -489,7 +489,10 @@ extension EnvironmentDecoderImpl {
         }
 
         private func environmentVariablePrefix() -> String {
-            EnvironmentDecoderImpl.environmentVariableName(for: codingPath).appending("_")
+            guard !codingPath.isEmpty else {
+                return ""
+            }
+            return EnvironmentDecoderImpl.environmentVariableName(for: codingPath).appending("_")
         }
 
         private func environmentVariableName(forKey key: some CodingKey) -> String {
