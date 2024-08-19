@@ -377,11 +377,15 @@ extension EnvironmentDecoderImpl {
             let prefix = environmentVariablePrefix()
             let prefixCount = prefix.count
 
-            return impl.environment.keys.compactMap {
-                guard $0.hasPrefix(prefix) else {
-                    return nil
+            return impl.environment.keys.flatMap { key -> [Key] in
+                guard key.hasPrefix(prefix) else {
+                    return []
                 }
-                return Key(stringValue: String($0.dropFirst(prefixCount)))
+                let uppercaseKey = String(key.dropFirst(prefixCount))
+                let camelCaseVariants = uppercaseSnakeCaseToCamelCaseVariants(uppercaseKey)
+                return camelCaseVariants.compactMap {
+                    Key(stringValue: $0)
+                }
             }
         }
 

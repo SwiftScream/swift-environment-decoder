@@ -214,7 +214,7 @@ struct EnvironmentDecoderTests {
             "ALL_KEYS_TEST_THREE": "",
         ]
         let result = try EnvironmentDecoder().decode(A.self, from: env)
-        #expect(result.allKeysTest.keys == ["ONE", "TWO", "THREE"])
+        #expect(Set(result.allKeysTest.keys) == Set(["one", "two", "three"]))
         #expect(result.undefined.keys == [])
     }
 

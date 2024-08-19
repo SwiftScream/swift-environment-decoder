@@ -49,3 +49,38 @@ func convertToUppercaseSnakeCase(_ stringKey: String) -> String {
     }.joined(separator: "_")
     return result
 }
+
+func uppercaseSnakeCaseToCamelCaseVariants(_ string: String) -> Set<String> {
+    let components = string.split(separator: "_")
+    guard let firstComponent = components.first else {
+        return [""]
+    }
+    let variants = componentsToCamelCaseVariants(components.dropFirst()).map {
+        firstComponent.lowercased() + $0
+    }
+    return Set(variants)
+}
+
+private func componentsToCamelCaseVariants(_ components: [String.SubSequence].SubSequence) -> [String] {
+    componentsToCamelCaseVariantsUC(components) + componentsToCamelCaseVariantsLC(components)
+}
+
+private func componentsToCamelCaseVariantsLC(_ components: [String.SubSequence].SubSequence) -> [String] {
+    guard let firstComponent = components.first else {
+        return [""]
+    }
+    let suffixes = componentsToCamelCaseVariants(components.dropFirst())
+    return suffixes.map {
+        firstComponent.capitalized + $0
+    }
+}
+
+private func componentsToCamelCaseVariantsUC(_ components: [String.SubSequence].SubSequence) -> [String] {
+    guard let firstComponent = components.first else {
+        return [""]
+    }
+    let suffixes = componentsToCamelCaseVariantsLC(components.dropFirst())
+    return suffixes.map {
+        firstComponent.uppercased() + $0
+    }
+}

@@ -21,4 +21,18 @@ struct CamelCaseToUppercaseSnakeCaseTests {
     func caseConverstion(input: String, expectation: String) {
         #expect(convertToUppercaseSnakeCase(input) == expectation)
     }
+
+    @Test("", arguments: [
+        ("", [""]),
+        ("A", ["a"]),
+        ("TWO_WORDS", ["twoWords", "twoWORDS"]),
+        ("NOW_THREE_WORDS", ["nowThreeWords", "nowThreeWORDS", "nowTHREEWords"]),
+        ("THIS_VARIABLE_NAME_IS_LENGTHY", [
+            "thisVariableNameIsLengthy", "thisVariableNameIsLENGTHY", "thisVariableNameISLengthy", "thisVariableNAMEIsLengthy",
+            "thisVariableNAMEIsLENGTHY", "thisVARIABLENameIsLengthy", "thisVARIABLENameIsLENGTHY", "thisVARIABLENameISLengthy",
+        ]),
+    ])
+    func camelCaseVariants(input: String, expectation: [String]) {
+        #expect(uppercaseSnakeCaseToCamelCaseVariants(input) == Set(expectation))
+    }
 }
