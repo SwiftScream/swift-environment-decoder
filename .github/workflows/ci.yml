@@ -20,7 +20,7 @@ jobs:
     - name: Run tests
       run: swift test -v --enable-experimental-swift-testing --disable-xctest --enable-code-coverage
     - name: Prepare coverage file
-      run: xcrun llvm-cov export -format="lcov" .build/debug/swift-environment-decoderPackageTests.swift-testing -instr-profile .build/debug/codecov/default.profdata > info.lcov
+      run: xcrun llvm-cov export -format="lcov" .build/debug/swift-environment-decoderPackageTests.xctest/Contents/MacOS/swift-environment-decoderPackageTests -instr-profile .build/debug/codecov/default.profdata > info.lcov
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       env:
