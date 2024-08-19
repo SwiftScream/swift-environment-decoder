@@ -196,7 +196,7 @@ struct EnvironmentDecoderTests {
         #expect(result.undefinedArray == nil)
     }
 
-    @Test func keyedContainerAllKeysTest() throws {
+    @Test func keyedContainerAllKeysGenericCodingKeyTest() throws {
         struct DecodeAllKeys: Decodable {
             let keys: Set<String>
             init(from decoder: Decoder) throws {
@@ -212,10 +212,36 @@ struct EnvironmentDecoderTests {
             "ALL_KEYS_TEST_ONE": "",
             "ALL_KEYS_TEST_TWO": "",
             "ALL_KEYS_TEST_THREE": "",
+            "ALL_KEYS_TEST_ANOTHER_ONE": "",
+            "ALL_KEYS_TEST_ANOTHER_TWO": "",
         ]
         let result = try EnvironmentDecoder().decode(A.self, from: env)
-        #expect(Set(result.allKeysTest.keys) == Set(["one", "two", "three"]))
+        #expect(result.allKeysTest.keys == Set(["one", "two", "three", "anotherOne", "anotherTwo", "anotherONE", "anotherTWO"]))
         #expect(result.undefined.keys == [])
+    }
+
+    @Test func keyedContainerAllKeysTest() throws {
+        struct A: Decodable {
+            enum CodingKeys: String, CodingKey {
+                case one
+                case twoWords
+                case aHTTPAcronym
+                case anAbsentKey
+            }
+
+            let keys: Set<CodingKeys>
+            init(from decoder: any Decoder) throws {
+                let keyedContainer = try decoder.container(keyedBy: CodingKeys.self)
+                keys = .init(keyedContainer.allKeys)
+            }
+        }
+        let env = [
+            "ONE": "",
+            "TWO_WORDS": "",
+            "A_HTTP_ACRONYM": "",
+        ]
+        let result = try EnvironmentDecoder().decode(A.self, from: env)
+        #expect(result.keys == Set([.one, .twoWords, .aHTTPAcronym]))
     }
 
     @Test func keyedContainerNestedContainerTest() throws {
