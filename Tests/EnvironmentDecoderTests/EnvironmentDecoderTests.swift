@@ -513,4 +513,27 @@ struct EnvironmentDecoderTests {
         #expect(result.int == 123_456)
         #expect(result.bool == true)
     }
+
+    @Test func aliasedKeysTest() throws {
+        struct A: Decodable {
+            let valueA: String
+            let valueB: String
+            let valueC: String
+
+            enum CodingKeys: String, CodingKey {
+                case valueA = "someKey"
+                case valueB = "someHTTPAcronymKey"
+                case valueC = "SOME_HTTP_API_NAME"
+            }
+        }
+        let env = [
+            "SOME_KEY": "this should be value a",
+            "SOME_HTTP_ACRONYM_KEY": "and this, value b",
+            "SOME_HTTP_API_NAME": "value c",
+        ]
+        let result = try EnvironmentDecoder().decode(A.self, from: env)
+        #expect(result.valueA == "this should be value a")
+        #expect(result.valueB == "and this, value b")
+        #expect(result.valueC == "value c")
+    }
 }
