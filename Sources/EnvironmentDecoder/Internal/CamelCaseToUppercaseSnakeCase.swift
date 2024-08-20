@@ -1,23 +1,24 @@
 import Foundation
 
 // Cribbed from https://github.com/apple/swift-foundation/blob/main/Sources/FoundationEssentials/JSON/JSONEncoder.swift
+// and tweaked slightly
 func convertToUppercaseSnakeCase(_ stringKey: String) -> String {
     guard !stringKey.isEmpty else { return stringKey }
 
     var words: [Range<String.Index>] = []
     // The general idea of this algorithm is to split words on transition from lower to upper case, then on transition of >1 upper case characters to lowercase
     //
-    // myProperty -> my_property
-    // myURLProperty -> my_url_property
-    //
-    // We assume, per Swift naming conventions, that the first character of the key is lowercase.
+    // myProperty -> MY_PROPERTY
+    // myURLProperty -> MY_URL_PROPERTY
     var wordStart = stringKey.startIndex
-    var searchRange = stringKey.index(after: wordStart)..<stringKey.endIndex
+    var searchRange = wordStart..<stringKey.endIndex
 
     // Find next uppercase character
     while let upperCaseRange = stringKey[searchRange].rangeOfCharacter(from: .uppercaseLetters, options: []) {
-        let untilUpperCase = wordStart..<upperCaseRange.lowerBound
-        words.append(untilUpperCase)
+        if wordStart < upperCaseRange.lowerBound {
+            let untilUpperCase = wordStart..<upperCaseRange.lowerBound
+            words.append(untilUpperCase)
+        }
 
         // Find next lowercase character
         searchRange = upperCaseRange.lowerBound..<searchRange.upperBound
@@ -43,6 +44,15 @@ func convertToUppercaseSnakeCase(_ stringKey: String) -> String {
         }
         searchRange = lowerCaseRange.upperBound..<searchRange.upperBound
     }
+
+    words = words.map { range in
+        let lastCharacterIndex = stringKey.index(before: range.upperBound)
+        if stringKey[lastCharacterIndex] == "_" {
+            return range.lowerBound..<lastCharacterIndex
+        }
+        return range
+    }
+
     words.append(wordStart..<searchRange.upperBound)
     let result = words.map { range in
         stringKey[range].uppercased()
