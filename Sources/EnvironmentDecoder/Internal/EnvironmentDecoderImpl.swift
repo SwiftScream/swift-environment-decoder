@@ -382,8 +382,8 @@ extension EnvironmentDecoderImpl {
                     return []
                 }
                 let uppercaseKey = String(key.dropFirst(prefixCount))
-                let camelCaseVariants = uppercaseSnakeCaseToCamelCaseVariants(uppercaseKey)
-                return camelCaseVariants.compactMap {
+                let potentialKeyVariants = uppercaseSnakeCaseToPotentialKeyVariants(uppercaseKey)
+                return potentialKeyVariants.compactMap {
                     Key(stringValue: $0)
                 }
             }

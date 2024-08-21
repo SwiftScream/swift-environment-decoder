@@ -60,14 +60,15 @@ func convertToUppercaseSnakeCase(_ stringKey: String) -> String {
     return result
 }
 
-func uppercaseSnakeCaseToCamelCaseVariants(_ string: String) -> Set<String> {
+func uppercaseSnakeCaseToPotentialKeyVariants(_ string: String) -> Set<String> {
     let components = string.split(separator: "_")
     guard let firstComponent = components.first else {
-        return [""]
+        return [string]
     }
-    let variants = componentsToCamelCaseVariants(components.dropFirst()).map {
+    var variants = componentsToCamelCaseVariants(components.dropFirst()).map {
         firstComponent.lowercased() + $0
     }
+    variants.append(string)
     return Set(variants)
 }
 
