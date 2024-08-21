@@ -539,4 +539,35 @@ struct EnvironmentDecoderTests {
         #expect(result.valueB == "and this, value b")
         #expect(result.valueC == "value c")
     }
+
+    @Test func unprefixedKeysTest() throws {
+        struct B: Decodable {
+            let secondComponent: String
+            let keys: Set<CodingKeys>
+
+            enum CodingKeys: String, CodingKey {
+                case secondComponent
+                case fullySpecified = "THIS_IS_FULLY_SPECIFIED"
+            }
+
+            init(from decoder: any Decoder) throws {
+                let keyedContainer = try decoder.container(keyedBy: CodingKeys.self)
+                secondComponent = try keyedContainer.decode(String.self, forKey: .secondComponent)
+                keys = .init(keyedContainer.allKeys)
+            }
+        }
+
+        struct A: Decodable {
+            let firstComponent: B
+        }
+
+        let env = [
+            "SECOND_COMPONENT": "second component value",
+            "FIRST_COMPONENT_SECOND_COMPONENT": "combined component value",
+            "THIS_IS_FULLY_SPECIFIED": "",
+        ]
+        let result = try EnvironmentDecoder(prefixKeysWithCodingPath: false).decode(A.self, from: env)
+        #expect(result.firstComponent.secondComponent == "second component value")
+        #expect(result.firstComponent.keys == Set([.secondComponent, .fullySpecified]))
+    }
 }

@@ -4,6 +4,7 @@ class EnvironmentDecoderImpl {
     let environment: [String: String]
     let dataDecodingStrategy: EnvironmentDecoder.DataDecodingStrategy
     let dateDecodingStrategy: EnvironmentDecoder.DateDecodingStrategy
+    let prefixKeysWithCodingPath: Bool
     var valueOverride: String? // used for SingleValueContainer decoding what must be a single string
     var userInfo: [CodingUserInfoKey: Any] = [:]
 
@@ -12,11 +13,13 @@ class EnvironmentDecoderImpl {
     init(environment: [String: String],
          codingPathNode: CodingPathNode,
          dataDecodingStrategy: EnvironmentDecoder.DataDecodingStrategy,
-         dateDecodingStrategy: EnvironmentDecoder.DateDecodingStrategy) {
+         dateDecodingStrategy: EnvironmentDecoder.DateDecodingStrategy,
+         prefixKeysWithCodingPath: Bool) {
         self.codingPathNode = codingPathNode
         self.environment = environment
         self.dataDecodingStrategy = dataDecodingStrategy
         self.dateDecodingStrategy = dateDecodingStrategy
+        self.prefixKeysWithCodingPath = prefixKeysWithCodingPath
     }
 }
 
@@ -240,7 +243,7 @@ extension EnvironmentDecoderImpl {
         if let valueOverride {
             return valueOverride
         }
-        let environmentVariableName = EnvironmentDecoderImpl.environmentVariableName(for: codingPath)
+        let environmentVariableName = EnvironmentDecoderImpl.environmentVariableName(for: codingPath, prefix: prefixKeysWithCodingPath)
         guard let value = environment[environmentVariableName] else {
             let key = codingPath.last ?? GenericCodingKey(stringValue: "")
             throw DecodingError.keyNotFound(key, .init(
@@ -250,10 +253,21 @@ extension EnvironmentDecoderImpl {
         return value
     }
 
-    private static func environmentVariableName(for codingPath: [CodingKey]) -> String {
-        codingPath.map {
-            convertToUppercaseSnakeCase($0.stringValue)
-        }.joined(separator: "_")
+    private static func environmentVariableName(for codingPath: [CodingKey], prefix: Bool) -> String {
+        if prefix {
+            codingPath.map {
+                convertToUppercaseSnakeCase($0.stringValue)
+            }.joined(separator: "_")
+        } else {
+            convertToUppercaseSnakeCase(codingPath.last?.stringValue ?? "")
+        }
+    }
+
+    private static func environmentVariablePrefix(for codingPath: [CodingKey], prefix: Bool) -> String {
+        guard prefix && !codingPath.isEmpty else {
+            return ""
+        }
+        return EnvironmentDecoderImpl.environmentVariableName(for: codingPath, prefix: prefix).appending("_")
     }
 }
 
@@ -374,7 +388,7 @@ extension EnvironmentDecoderImpl {
         }
 
         var allKeys: [Key] {
-            let prefix = environmentVariablePrefix()
+            let prefix = EnvironmentDecoderImpl.environmentVariablePrefix(for: codingPath, prefix: impl.prefixKeysWithCodingPath)
             let prefixCount = prefix.count
 
             return impl.environment.keys.flatMap { key -> [Key] in
@@ -485,18 +499,12 @@ extension EnvironmentDecoderImpl {
             EnvironmentDecoderImpl(environment: impl.environment,
                                    codingPathNode: codingPathNode.appending(key),
                                    dataDecodingStrategy: impl.dataDecodingStrategy,
-                                   dateDecodingStrategy: impl.dateDecodingStrategy)
-        }
-
-        private func environmentVariablePrefix() -> String {
-            guard !codingPath.isEmpty else {
-                return ""
-            }
-            return EnvironmentDecoderImpl.environmentVariableName(for: codingPath).appending("_")
+                                   dateDecodingStrategy: impl.dateDecodingStrategy,
+                                   prefixKeysWithCodingPath: impl.prefixKeysWithCodingPath)
         }
 
         private func environmentVariableName(forKey key: some CodingKey) -> String {
-            EnvironmentDecoderImpl.environmentVariableName(for: codingPathNode.path(byAppending: key))
+            EnvironmentDecoderImpl.environmentVariableName(for: codingPathNode.path(byAppending: key), prefix: impl.prefixKeysWithCodingPath)
         }
 
         private func decodeFixedWidthInteger<T: FixedWidthInteger>(key: Key) throws -> T {
