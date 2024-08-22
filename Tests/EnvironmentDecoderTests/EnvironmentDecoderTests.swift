@@ -394,7 +394,7 @@ struct EnvironmentDecoderTests {
         }
         enum NestedCodingKeys: CodingKey {}
         let env = [
-            "NESTED_LIST_OF_STRING": "so,long,and,thanks,for,all,the,fish",
+            "NESTED_LIST_OF_STRING": " so, long, and ,thanks,for ,all , the,fish ",
         ]
         var result = try EnvironmentDecoder().decode(A.self, from: env)
         #expect(result.nested.listOfString == ["so", "long", "and", "thanks", "for", "all", "the", "fish"])
@@ -412,6 +412,17 @@ struct EnvironmentDecoderTests {
         #expect(throws: Swift.DecodingError.self) {
             try result.nested.unkeyedContainer.superDecoder()
         }
+    }
+
+    @Test func unkeyedContainerNoTrimWhitespaceTest() throws {
+        struct A: Decodable {
+            let listOfString: [String]
+        }
+        let env = [
+            "LIST_OF_STRING": "so, long, and, thanks ,for,all,the, fish",
+        ]
+        let result = try EnvironmentDecoder(trimWhitespaceFromUnkeyedContainerValues: false).decode(A.self, from: env)
+        #expect(result.listOfString == ["so", " long", " and", " thanks ", "for", "all", "the", " fish"])
     }
 
     @Test func invalidUnkeyedContainerTest() throws {

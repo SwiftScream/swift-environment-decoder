@@ -5,6 +5,7 @@ class EnvironmentDecoderImpl {
     let dataDecodingStrategy: EnvironmentDecoder.DataDecodingStrategy
     let dateDecodingStrategy: EnvironmentDecoder.DateDecodingStrategy
     let prefixKeysWithCodingPath: Bool
+    let trimWhitespaceFromUnkeyedContainerValues: Bool
     var valueOverride: String? // used for SingleValueContainer decoding what must be a single string
     var userInfo: [CodingUserInfoKey: Any] = [:]
 
@@ -14,12 +15,14 @@ class EnvironmentDecoderImpl {
          codingPathNode: CodingPathNode,
          dataDecodingStrategy: EnvironmentDecoder.DataDecodingStrategy,
          dateDecodingStrategy: EnvironmentDecoder.DateDecodingStrategy,
-         prefixKeysWithCodingPath: Bool) {
+         prefixKeysWithCodingPath: Bool,
+         trimWhitespaceFromUnkeyedContainerValues: Bool) {
         self.codingPathNode = codingPathNode
         self.environment = environment
         self.dataDecodingStrategy = dataDecodingStrategy
         self.dateDecodingStrategy = dateDecodingStrategy
         self.prefixKeysWithCodingPath = prefixKeysWithCodingPath
+        self.trimWhitespaceFromUnkeyedContainerValues = trimWhitespaceFromUnkeyedContainerValues
     }
 }
 
@@ -500,7 +503,8 @@ extension EnvironmentDecoderImpl {
                                    codingPathNode: codingPathNode.appending(key),
                                    dataDecodingStrategy: impl.dataDecodingStrategy,
                                    dateDecodingStrategy: impl.dateDecodingStrategy,
-                                   prefixKeysWithCodingPath: impl.prefixKeysWithCodingPath)
+                                   prefixKeysWithCodingPath: impl.prefixKeysWithCodingPath,
+                                   trimWhitespaceFromUnkeyedContainerValues: impl.trimWhitespaceFromUnkeyedContainerValues)
         }
 
         private func environmentVariableName(forKey key: some CodingKey) -> String {
@@ -548,7 +552,11 @@ extension EnvironmentDecoderImpl {
         }
 
         mutating func decode<T>(_ type: T.Type) throws -> T where T: Decodable {
-            let value = try impl.unwrap(singleValue: values[currentIndex], as: type)
+            var stringValue = values[currentIndex]
+            if impl.trimWhitespaceFromUnkeyedContainerValues {
+                stringValue = stringValue.trimmingCharacters(in: .whitespaces)
+            }
+            let value = try impl.unwrap(singleValue: stringValue, as: type)
             currentIndex += 1
             return value
         }

@@ -26,6 +26,7 @@ public final class EnvironmentDecoder {
     private let dataDecodingStrategy: DataDecodingStrategy
     private let dateDecodingStrategy: DateDecodingStrategy
     private let prefixKeysWithCodingPath: Bool
+    private let trimWhitespaceFromUnkeyedContainerValues: Bool
 
     /// Initializes `self` with default configuration.
     /// - Parameter dataDecodingStrategy: the strategy to use for decoding Data.
@@ -33,10 +34,12 @@ public final class EnvironmentDecoder {
     /// - Note: dataDecodingStrategy is ignored for Data in an unkeyed container - base64 is always used.
     public init(dataDecodingStrategy: DataDecodingStrategy = .base64,
                 dateDecodingStrategy: DateDecodingStrategy = .iso8601,
-                prefixKeysWithCodingPath: Bool = true) {
+                prefixKeysWithCodingPath: Bool = true,
+                trimWhitespaceFromUnkeyedContainerValues: Bool = true) {
         self.dataDecodingStrategy = dataDecodingStrategy
         self.dateDecodingStrategy = dateDecodingStrategy
         self.prefixKeysWithCodingPath = prefixKeysWithCodingPath
+        self.trimWhitespaceFromUnkeyedContainerValues = trimWhitespaceFromUnkeyedContainerValues
     }
 
     /// Decodes a top-level value of the given type from the given environment representation.
@@ -51,7 +54,8 @@ public final class EnvironmentDecoder {
                                              codingPathNode: .root,
                                              dataDecodingStrategy: dataDecodingStrategy,
                                              dateDecodingStrategy: dateDecodingStrategy,
-                                             prefixKeysWithCodingPath: prefixKeysWithCodingPath)
+                                             prefixKeysWithCodingPath: prefixKeysWithCodingPath,
+                                             trimWhitespaceFromUnkeyedContainerValues: trimWhitespaceFromUnkeyedContainerValues)
         return try type.init(from: decoder)
     }
 }
