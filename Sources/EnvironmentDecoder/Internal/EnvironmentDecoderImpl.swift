@@ -6,6 +6,7 @@ class EnvironmentDecoderImpl {
     let dateDecodingStrategy: EnvironmentDecoder.DateDecodingStrategy
     let prefixKeysWithCodingPath: Bool
     let trimWhitespaceFromUnkeyedContainerValues: Bool
+    let unkeyedContainerSeparator: String
     var valueOverride: String? // used for SingleValueContainer decoding what must be a single string
     var userInfo: [CodingUserInfoKey: Any] = [:]
 
@@ -16,13 +17,15 @@ class EnvironmentDecoderImpl {
          dataDecodingStrategy: EnvironmentDecoder.DataDecodingStrategy,
          dateDecodingStrategy: EnvironmentDecoder.DateDecodingStrategy,
          prefixKeysWithCodingPath: Bool,
-         trimWhitespaceFromUnkeyedContainerValues: Bool) {
+         trimWhitespaceFromUnkeyedContainerValues: Bool,
+         unkeyedContainerSeparator: String) {
         self.codingPathNode = codingPathNode
         self.environment = environment
         self.dataDecodingStrategy = dataDecodingStrategy
         self.dateDecodingStrategy = dateDecodingStrategy
         self.prefixKeysWithCodingPath = prefixKeysWithCodingPath
         self.trimWhitespaceFromUnkeyedContainerValues = trimWhitespaceFromUnkeyedContainerValues
+        self.unkeyedContainerSeparator = unkeyedContainerSeparator
     }
 }
 
@@ -504,7 +507,8 @@ extension EnvironmentDecoderImpl {
                                    dataDecodingStrategy: impl.dataDecodingStrategy,
                                    dateDecodingStrategy: impl.dateDecodingStrategy,
                                    prefixKeysWithCodingPath: impl.prefixKeysWithCodingPath,
-                                   trimWhitespaceFromUnkeyedContainerValues: impl.trimWhitespaceFromUnkeyedContainerValues)
+                                   trimWhitespaceFromUnkeyedContainerValues: impl.trimWhitespaceFromUnkeyedContainerValues,
+                                   unkeyedContainerSeparator: impl.unkeyedContainerSeparator)
         }
 
         private func environmentVariableName(forKey key: some CodingKey) -> String {
@@ -530,7 +534,7 @@ extension EnvironmentDecoderImpl {
             values = if string.isEmpty {
                 []
             } else {
-                string.components(separatedBy: ",")
+                string.components(separatedBy: impl.unkeyedContainerSeparator)
             }
             currentIndex = values.startIndex
         }

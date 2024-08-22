@@ -425,6 +425,17 @@ struct EnvironmentDecoderTests {
         #expect(result.listOfString == ["so", " long", " and", " thanks ", "for", "all", "the", " fish"])
     }
 
+    @Test func unkeyedContainerCustomSeparatorTest() throws {
+        struct A: Decodable {
+            let listOfString: [String]
+        }
+        let env = [
+            "LIST_OF_STRING": "so;long;and;thanks;for;all;the;fish",
+        ]
+        let result = try EnvironmentDecoder(unkeyedContainerSeparator: ";").decode(A.self, from: env)
+        #expect(result.listOfString == ["so", "long", "and", "thanks", "for", "all", "the", "fish"])
+    }
+
     @Test func invalidUnkeyedContainerTest() throws {
         struct A: Decodable {
             let key: String

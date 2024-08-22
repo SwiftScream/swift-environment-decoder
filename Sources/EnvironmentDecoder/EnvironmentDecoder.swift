@@ -27,6 +27,7 @@ public final class EnvironmentDecoder {
     private let dateDecodingStrategy: DateDecodingStrategy
     private let prefixKeysWithCodingPath: Bool
     private let trimWhitespaceFromUnkeyedContainerValues: Bool
+    private let unkeyedContainerSeparator: String
 
     /// Initializes `self` with default configuration.
     /// - Parameter dataDecodingStrategy: the strategy to use for decoding Data.
@@ -35,11 +36,13 @@ public final class EnvironmentDecoder {
     public init(dataDecodingStrategy: DataDecodingStrategy = .base64,
                 dateDecodingStrategy: DateDecodingStrategy = .iso8601,
                 prefixKeysWithCodingPath: Bool = true,
-                trimWhitespaceFromUnkeyedContainerValues: Bool = true) {
+                trimWhitespaceFromUnkeyedContainerValues: Bool = true,
+                unkeyedContainerSeparator: String = ",") {
         self.dataDecodingStrategy = dataDecodingStrategy
         self.dateDecodingStrategy = dateDecodingStrategy
         self.prefixKeysWithCodingPath = prefixKeysWithCodingPath
         self.trimWhitespaceFromUnkeyedContainerValues = trimWhitespaceFromUnkeyedContainerValues
+        self.unkeyedContainerSeparator = unkeyedContainerSeparator
     }
 
     /// Decodes a top-level value of the given type from the given environment representation.
@@ -55,7 +58,8 @@ public final class EnvironmentDecoder {
                                              dataDecodingStrategy: dataDecodingStrategy,
                                              dateDecodingStrategy: dateDecodingStrategy,
                                              prefixKeysWithCodingPath: prefixKeysWithCodingPath,
-                                             trimWhitespaceFromUnkeyedContainerValues: trimWhitespaceFromUnkeyedContainerValues)
+                                             trimWhitespaceFromUnkeyedContainerValues: trimWhitespaceFromUnkeyedContainerValues,
+                                             unkeyedContainerSeparator: unkeyedContainerSeparator)
         return try type.init(from: decoder)
     }
 }
