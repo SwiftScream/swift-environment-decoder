@@ -30,7 +30,12 @@ public final class EnvironmentDecoder {
     private let unkeyedContainerSeparator: String
 
     /// Initializes `self` with default configuration.
-    /// - Parameter dataDecodingStrategy: the strategy to use for decoding Data.
+    /// - Parameters:
+    ///   - dataDecodingStrategy: the strategy to use for decoding Data.
+    ///   - dateDecodingStrategy: the strategy to use for decoding Date.
+    ///   - prefixKeysWithCodingPath: if true keys used to index the environment dictionary are prefixed by the coding path
+    ///   - trimWhitespaceFromUnkeyedContainerValues: if true, whitespace is trimmed from both ends of unkeyed container values; if false, the whitespace is included in the value
+    ///   - unkeyedContainerSeparator: the character used to split elements in an unkeyed container
     ///
     /// - Note: dataDecodingStrategy is ignored for Data in an unkeyed container - base64 is always used.
     public init(dataDecodingStrategy: DataDecodingStrategy = .base64,
