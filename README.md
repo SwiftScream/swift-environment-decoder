@@ -13,7 +13,7 @@ Type-safe access to your environment leveraging Swift's `Decodable`
 ## Getting Started
 
 ### Swift Package Manager
-Add `.package(url: "https://github.com/SwiftScream/swift-environment-decoder.git", from: "0.1.0")` to your Package.swift dependencies
+Add `.package(url: "https://github.com/SwiftScream/swift-environment-decoder.git", from: "0.4.0")` to your Package.swift dependencies
 
 ## Usage
 
