@@ -14,5 +14,6 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "EnvironmentDecoder"),
+            name: "EnvironmentDecoder",
+            resources: [.process("PrivacyInfo.xcprivacy")]),
     ])
