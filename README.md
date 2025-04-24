@@ -17,6 +17,10 @@ Add `.package(url: "https://github.com/SwiftScream/swift-environment-decoder.git
 
 ## Usage
 
+[Detailed documentation](https://swiftpackageindex.com/SwiftScream/swift-environment-decoder/master/documentation/environmentdecoder) is available on the swift package index.
+
+This should be enough to get you started...
+
 ### Decoding the Environment
 
 ```swift
