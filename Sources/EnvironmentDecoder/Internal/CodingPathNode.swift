@@ -1,4 +1,4 @@
-enum CodingPathNode: Sendable {
+enum CodingPathNode {
     case root
     indirect case node(CodingKey, CodingPathNode)
 
@@ -24,11 +24,11 @@ enum GenericCodingKey: CodingKey {
     case string(String)
     case int(Int)
 
-    public init(stringValue: String) {
+    init(stringValue: String) {
         self = .string(stringValue)
     }
 
-    public init(intValue: Int) {
+    init(intValue: Int) {
         self = .int(intValue)
     }
 

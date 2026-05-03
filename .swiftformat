@@ -1,9 +1,9 @@
 --exclude .build
 
 # rules
-#--disable redundantReturn
 --disable andOperator
 --disable wrapMultilineStatementBraces
+--disable docComments
 
 # format options
 --closingparen same-line
