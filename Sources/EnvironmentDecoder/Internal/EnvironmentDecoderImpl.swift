@@ -282,7 +282,7 @@ extension EnvironmentDecoderImpl: Decoder {
         codingPathNode.path
     }
 
-    func container<Key>(keyedBy _: Key.Type) throws -> KeyedDecodingContainer<Key> where Key: CodingKey {
+    func container<Key: CodingKey>(keyedBy _: Key.Type) throws -> KeyedDecodingContainer<Key> {
         guard valueOverride == nil else {
             throw DecodingError.typeMismatch(String.self, .init(
                 codingPath: codingPath,
@@ -379,7 +379,7 @@ extension EnvironmentDecoderImpl: SingleValueDecodingContainer {
         try decodeFixedWidthInteger()
     }
 
-    func decode<T>(_ type: T.Type) throws -> T where T: Decodable {
+    func decode<T: Decodable>(_ type: T.Type) throws -> T {
         try unwrap(singleValue: getValue(), as: type)
     }
 }
@@ -389,7 +389,7 @@ extension EnvironmentDecoderImpl {
         let impl: EnvironmentDecoderImpl
         let codingPathNode: CodingPathNode
 
-        public var codingPath: [CodingKey] {
+        var codingPath: [CodingKey] {
             codingPathNode.path
         }
 
@@ -477,11 +477,11 @@ extension EnvironmentDecoderImpl {
             try decodeFixedWidthInteger(key: key)
         }
 
-        func decode<T>(_ type: T.Type, forKey key: Key) throws -> T where T: Decodable {
+        func decode<T: Decodable>(_ type: T.Type, forKey key: Key) throws -> T {
             try impl.unwrap(type, for: codingPathNode.appending(key))
         }
 
-        func nestedContainer<NestedKey>(keyedBy type: NestedKey.Type, forKey key: Key) throws -> KeyedDecodingContainer<NestedKey> where NestedKey: CodingKey {
+        func nestedContainer<NestedKey: CodingKey>(keyedBy type: NestedKey.Type, forKey key: Key) throws -> KeyedDecodingContainer<NestedKey> {
             try impl.with(path: codingPathNode.appending(key)) {
                 try impl.container(keyedBy: type)
             }
@@ -539,7 +539,7 @@ extension EnvironmentDecoderImpl {
             currentIndex = values.startIndex
         }
 
-        public var codingPath: [CodingKey] {
+        var codingPath: [CodingKey] {
             codingPathNode.path
         }
 
@@ -555,7 +555,7 @@ extension EnvironmentDecoderImpl {
             false
         }
 
-        mutating func decode<T>(_ type: T.Type) throws -> T where T: Decodable {
+        mutating func decode<T: Decodable>(_ type: T.Type) throws -> T {
             var stringValue = values[currentIndex]
             if impl.trimWhitespaceFromUnkeyedContainerValues {
                 stringValue = stringValue.trimmingCharacters(in: .whitespaces)
@@ -565,7 +565,7 @@ extension EnvironmentDecoderImpl {
             return value
         }
 
-        mutating func nestedContainer<NestedKey>(keyedBy _: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> where NestedKey: CodingKey {
+        mutating func nestedContainer<NestedKey: CodingKey>(keyedBy _: NestedKey.Type) throws -> KeyedDecodingContainer<NestedKey> {
             throw DecodingError.typeMismatch(KeyedDecodingContainer<NestedKey>.self, .init(
                 codingPath: codingPathNode.path(byAppending: GenericCodingKey(intValue: currentIndex)),
                 debugDescription: "No nested keyed container found"))

@@ -54,10 +54,9 @@ func convertToUppercaseSnakeCase(_ stringKey: String) -> String {
     }
 
     words.append(wordStart..<searchRange.upperBound)
-    let result = words.map { range in
+    return words.map { range in
         stringKey[range].uppercased()
     }.joined(separator: "_")
-    return result
 }
 
 func uppercaseSnakeCaseToPotentialKeyVariants(_ string: String) -> Set<String> {
